@@ -28,6 +28,10 @@ export const CardTitle = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 8px;
+  h1 {
+    font-size: 18px;
+    font-weight: 700;
+  }
 `;
 export const Nota = styled.div`
   display: flex;
@@ -38,6 +42,7 @@ export const CardDescription = styled.p`
   font-size: 14px;
   font-weight: 400;
   margin-bottom: 16px;
+  line-height: 1.6;
 `;
 export const Button = styled.div`
   display: flex;
