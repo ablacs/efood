@@ -6,6 +6,7 @@ import { Torteria } from "./pages/Torteria/index.tsx";
 import { GlobalStyle } from "./styles.ts";
 import { Provider } from "react-redux";
 import { store } from "./app/store.ts";
+import { InProgress } from "./components/error/index.tsx";
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
   {
     path: "/torteria",
     element: <Torteria />,
+  },
+  {
+    path: "*",
+    element: <InProgress />,
   },
 ]);
 

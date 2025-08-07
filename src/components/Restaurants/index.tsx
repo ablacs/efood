@@ -32,7 +32,9 @@ export const Restaurants = () => (
           rápida, embalagens cuidadosas e qualidade garantida.Experimente o
           Japão sem sair do lar com nosso delivery!
         </CardDescription>
-        <Button>Saiba mais</Button>
+        <Link to={"/InProgress"}>
+          <Button>Saiba mais</Button>
+        </Link>
         <TagContainer>
           <Tag>Destaque da semana</Tag>
           <Tag>Japonesa</Tag>
@@ -75,7 +77,9 @@ export const Restaurants = () => (
           rápida, embalagens cuidadosas e qualidade garantida.Experimente o
           Japão sem sair do lar com nosso delivery!
         </CardDescription>
-        <Button>Saiba mais</Button>
+        <Link to={"/InProgress"}>
+          <Button>Saiba mais</Button>
+        </Link>
         <TagContainer>
           <Tag>Destaque da semana</Tag>
           <Tag>Japonesa</Tag>
@@ -96,7 +100,9 @@ export const Restaurants = () => (
           rápida, embalagens cuidadosas e qualidade garantida.Experimente o
           Japão sem sair do lar com nosso delivery!
         </CardDescription>
-        <Button>Saiba mais</Button>
+        <Link to={"/InProgress"}>
+          <Button>Saiba mais</Button>
+        </Link>
         <TagContainer>
           <Tag>Destaque da semana</Tag>
           <Tag>Japonesa</Tag>

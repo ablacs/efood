@@ -4,7 +4,7 @@ import { Colors } from "../../styles";
 export const CardsList = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 48px 80px;
+  gap: 80px;
   margin-bottom: 80px;
   background-color: ${Colors.background};
 `;
@@ -37,8 +37,12 @@ export const CardDescription = styled.p`
   padding: 0 8px;
   font-size: 14px;
   font-weight: 400;
+  margin-bottom: 16px;
 `;
-export const Button = styled.button`
+export const Button = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 82px;
   height: 24px;
   background-color: ${Colors.red};

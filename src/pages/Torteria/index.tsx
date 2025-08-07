@@ -11,7 +11,9 @@ import {
   Cards,
   CardTitle,
   Header,
+  HeaderContainer,
   HeaderImg,
+  HeaderTextContainer,
   Italian,
   LaDolce,
   ModalClose,
@@ -43,30 +45,78 @@ export const Torteria = () => {
   return (
     <>
       <Header>
-        <div className="left">
-          <h1>Restaurantes</h1>
-        </div>
-        <div className="center">
-          <Link to={"/"}>
-            <img src={logo} />
-          </Link>
-        </div>
-        <div className="right">
-          <h1>{count} Produto(s) no carrinho</h1>
-        </div>
+        <Container>
+          <HeaderContainer>
+            <h1>Restaurantes</h1>
+            <Link to={"/"}>
+              <img src={logo} />
+            </Link>
+            <h1>{count} Produto(s) no carrinho</h1>
+          </HeaderContainer>
+        </Container>
       </Header>
       <HeaderImg>
-        <Container>
+        <HeaderTextContainer>
           <Italian>
             <h3>Italiana</h3>
           </Italian>
           <LaDolce>
             <h1>La Dolce Vita Trattoria</h1>
           </LaDolce>
-        </Container>
+        </HeaderTextContainer>
       </HeaderImg>
       <Container>
         <Products>
+          <Cards>
+            <CardImage src={pizza} alt="" />
+            <CardTitle>Pizza marguerita</CardTitle>
+            <CardDescription>
+              A clássica Marguerita: molho de tomate suculento, mussarela
+              derretida, manjericão fresco e um toque de azeite. Sabor e
+              simplicidade!
+            </CardDescription>
+            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
+          </Cards>
+          <Cards>
+            <CardImage src={pizza} alt="" />
+            <CardTitle>Pizza marguerita</CardTitle>
+            <CardDescription>
+              A clássica Marguerita: molho de tomate suculento, mussarela
+              derretida, manjericão fresco e um toque de azeite. Sabor e
+              simplicidade!
+            </CardDescription>
+            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
+          </Cards>
+          <Cards>
+            <CardImage src={pizza} alt="" />
+            <CardTitle>Pizza marguerita</CardTitle>
+            <CardDescription>
+              A clássica Marguerita: molho de tomate suculento, mussarela
+              derretida, manjericão fresco e um toque de azeite. Sabor e
+              simplicidade!
+            </CardDescription>
+            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
+          </Cards>
+          <Cards>
+            <CardImage src={pizza} alt="" />
+            <CardTitle>Pizza marguerita</CardTitle>
+            <CardDescription>
+              A clássica Marguerita: molho de tomate suculento, mussarela
+              derretida, manjericão fresco e um toque de azeite. Sabor e
+              simplicidade!
+            </CardDescription>
+            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
+          </Cards>
+          <Cards>
+            <CardImage src={pizza} alt="" />
+            <CardTitle>Pizza marguerita</CardTitle>
+            <CardDescription>
+              A clássica Marguerita: molho de tomate suculento, mussarela
+              derretida, manjericão fresco e um toque de azeite. Sabor e
+              simplicidade!
+            </CardDescription>
+            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
+          </Cards>
           <Cards>
             <CardImage src={pizza} alt="" />
             <CardTitle>Pizza marguerita</CardTitle>
