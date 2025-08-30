@@ -20,6 +20,7 @@ export const Cards = styled.div`
 export const CardImage = styled.img`
   width: 100%;
   height: 217px;
+  object-fit: cover;
 `;
 export const CardTitle = styled.div`
   font-size: 18px;

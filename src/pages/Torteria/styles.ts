@@ -1,7 +1,10 @@
 import styled from "styled-components";
 import { Colors } from "../../styles";
 import fundo_hero from "../../assets/fundo_hero.png";
-import trattoria from "../../assets/images/background_pasta.png";
+
+type HeaderImgProps = {
+  backgroundImage: string;
+};
 
 export const Header = styled.div`
   width: 100%;
@@ -31,9 +34,9 @@ export const HeaderContainer = styled.div`
     text-align: right;
   }
 `;
-export const HeaderImg = styled.div`
+export const HeaderImg = styled.div<HeaderImgProps>`
   height: 280px;
-  background-image: url(${trattoria});
+  background-image: url(${(props) => props.backgroundImage});
   background-size: cover;
   background-position: center;
   margin-bottom: 56px;

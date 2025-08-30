@@ -1,5 +1,8 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "../../app/store";
+import { addItem } from "../../features/cart/cartslice";
 
 import { Footer } from "../../components/Footer";
 import { Container } from "../../styles";
@@ -22,26 +25,62 @@ import {
   Products,
 } from "./styles";
 import logo from "../../assets/logo.png";
-import pizza from "../../assets/images/pizza.png";
 import { CartModal } from "../../modals/CarModal/CartModal";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "../../app/store";
-import { addItem } from "../../features/cart/cartslice";
+import type { Restaurant, MenuItem } from "../../components/Restaurants";
 
 export const Torteria = () => {
+  const { id } = useParams();
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [modal, setModal] = useState(false);
   const [cartModal, setCartModal] = useState(false);
-  const handleCart = () => setCartModal(!cartModal);
 
+  const handleCart = () => setCartModal(!cartModal);
   const dispatch = useDispatch();
   const count = useSelector((state: RootState) => state.cart.items.length);
-  const handleClick = () => {
-    dispatch(
-      addItem({ id: Date.now(), name: "Pizza Marguerita", price: 60.9 })
-    );
+
+  const truncateWords = (text: string, wordLimit: number) => {
+    const words = text.split("");
+    return words.length > wordLimit
+      ? words.slice(0, wordLimit).join("") + "..."
+      : text;
   };
 
-  const handleModal = () => setModal(!modal);
+  useEffect(() => {
+    fetch("https://ebac-fake-api.vercel.app/api/efood/restaurantes")
+      .then((res) => res.json())
+      .then((data: Restaurant[]) => {
+        const foundRestaurant = data.find((r) => r.id === Number(id));
+        setRestaurant(foundRestaurant || null);
+      })
+      .catch((error) => {
+        console.error("Error fetching restaurant:", error);
+      });
+  }, [id]);
+
+  const handleModal = (item?: MenuItem) => {
+    if (item) setSelectedItem(item);
+    setModal(!modal);
+  };
+
+  const handleAddToCart = () => {
+    if (selectedItem) {
+      dispatch(
+        addItem({
+          id: selectedItem.id,
+          name: selectedItem.nome,
+          price: selectedItem.preco,
+          image: selectedItem.foto,
+        })
+      );
+      setModal(false); // Close modal after adding to cart
+    }
+  };
+
+  if (!restaurant) {
+    return <h3>Loading...</h3>;
+  }
+
   return (
     <>
       <Header>
@@ -49,115 +88,64 @@ export const Torteria = () => {
           <HeaderContainer>
             <h1>Restaurantes</h1>
             <Link to={"/"}>
-              <img src={logo} />
+              <img src={logo} alt="Logo" />
             </Link>
             <h1>{count} Produto(s) no carrinho</h1>
           </HeaderContainer>
         </Container>
       </Header>
-      <HeaderImg>
+
+      <HeaderImg backgroundImage={restaurant.capa}>
         <HeaderTextContainer>
           <Italian>
-            <h3>Italiana</h3>
+            <h3>{restaurant.tipo}</h3>
           </Italian>
           <LaDolce>
-            <h1>La Dolce Vita Trattoria</h1>
+            <h1>{restaurant.titulo}</h1>
           </LaDolce>
         </HeaderTextContainer>
       </HeaderImg>
+
       <Container>
         <Products>
-          <Cards>
-            <CardImage src={pizza} alt="" />
-            <CardTitle>Pizza marguerita</CardTitle>
-            <CardDescription>
-              A clássica Marguerita: molho de tomate suculento, mussarela
-              derretida, manjericão fresco e um toque de azeite. Sabor e
-              simplicidade!
-            </CardDescription>
-            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
-          </Cards>
-          <Cards>
-            <CardImage src={pizza} alt="" />
-            <CardTitle>Pizza marguerita</CardTitle>
-            <CardDescription>
-              A clássica Marguerita: molho de tomate suculento, mussarela
-              derretida, manjericão fresco e um toque de azeite. Sabor e
-              simplicidade!
-            </CardDescription>
-            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
-          </Cards>
-          <Cards>
-            <CardImage src={pizza} alt="" />
-            <CardTitle>Pizza marguerita</CardTitle>
-            <CardDescription>
-              A clássica Marguerita: molho de tomate suculento, mussarela
-              derretida, manjericão fresco e um toque de azeite. Sabor e
-              simplicidade!
-            </CardDescription>
-            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
-          </Cards>
-          <Cards>
-            <CardImage src={pizza} alt="" />
-            <CardTitle>Pizza marguerita</CardTitle>
-            <CardDescription>
-              A clássica Marguerita: molho de tomate suculento, mussarela
-              derretida, manjericão fresco e um toque de azeite. Sabor e
-              simplicidade!
-            </CardDescription>
-            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
-          </Cards>
-          <Cards>
-            <CardImage src={pizza} alt="" />
-            <CardTitle>Pizza marguerita</CardTitle>
-            <CardDescription>
-              A clássica Marguerita: molho de tomate suculento, mussarela
-              derretida, manjericão fresco e um toque de azeite. Sabor e
-              simplicidade!
-            </CardDescription>
-            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
-          </Cards>
-          <Cards>
-            <CardImage src={pizza} alt="" />
-            <CardTitle>Pizza marguerita</CardTitle>
-            <CardDescription>
-              A clássica Marguerita: molho de tomate suculento, mussarela
-              derretida, manjericão fresco e um toque de azeite. Sabor e
-              simplicidade!
-            </CardDescription>
-            <CardButton onClick={handleModal}>Adicionar ao carrinho</CardButton>
-          </Cards>
+          {restaurant.cardapio.map((item) => (
+            <Cards key={item.id}>
+              <CardImage src={item.foto} alt={item.nome} />
+              <CardTitle>{item.nome}</CardTitle>
+              <CardDescription>
+                {truncateWords(item.descricao, 150)}
+              </CardDescription>
+              <CardButton onClick={() => handleModal(item)}>
+                Adicionar ao carrinho
+              </CardButton>
+            </Cards>
+          ))}
         </Products>
       </Container>
-      {modal && (
-        <ModalOverlay onClick={handleModal}>
+
+      {modal && selectedItem && (
+        <ModalOverlay onClick={() => handleModal()}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
-            <img src={pizza} />
+            <img src={selectedItem.foto} alt={selectedItem.nome} />
             <div className="modal-content">
-              <CardTitle>Produto adicionado!</CardTitle>
+              <CardTitle>{selectedItem.nome}</CardTitle>
               <CardDescription>
-                A pizza Margherita é uma pizza clássica da culinária italiana,
-                reconhecida por sua simplicidade e sabor inigualável. Ela é
-                feita com uma base de massa fina e crocante, coberta com molho
-                de tomate fresco, queijo mussarela de alta qualidade, manjericão
-                fresco e azeite de oliva extra-virgem. A combinação de sabores é
-                perfeita, com o molho de tomate suculento e ligeiramente ácido,
-                o queijo derretido e cremoso e as folhas de manjericão frescas,
-                que adicionam um toque de sabor herbáceo. É uma pizza simples,
-                mas deliciosa, que agrada a todos os paladares e é uma ótima
-                opção para qualquer ocasião. Serve: de 2 a 3 pessoas
+                {truncateWords(selectedItem.descricao, 20)}
+                <br />
+                Serve: {selectedItem.porcao}
               </CardDescription>
               <div className="modal-button">
-                <BotaoModal onClick={handleClick}>
-                  Adicionar ao carrinho - R$ 60,90
+                <BotaoModal onClick={handleAddToCart}>
+                  Adicionar ao carrinho - R$ {selectedItem.preco.toFixed(2)}
                 </BotaoModal>
                 <BotaoModal onClick={handleCart}>Ver carrinho</BotaoModal>
               </div>
-              <ModalClose onClick={handleModal}>X</ModalClose>
+              <ModalClose onClick={() => handleModal()}>X</ModalClose>
             </div>
           </ModalContent>
         </ModalOverlay>
       )}
+
       <CartModal isOpen={cartModal} onClose={handleCart} />
       <Footer />
     </>

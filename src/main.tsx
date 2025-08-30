@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     element: <App />,
   },
   {
-    path: "/torteria",
+    path: "/restaurants/:id",
     element: <Torteria />,
   },
   {

@@ -10,7 +10,6 @@ import {
   SideModal,
   Value,
 } from "./styles";
-import pizza from "../../assets/images/pizza.png";
 import trash from "../../assets/lixeira-de-reciclagem 1.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { removeItem } from "../../features/cart/cartslice";
@@ -41,7 +40,7 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
           <>
             {cartItems.map((item) => (
               <CardModal key={item.id}>
-                <img src={pizza} alt="" />
+                <img src={item.image} alt="" />
                 <CartDescription>
                   <h1>{item.name}</h1>
                   <p>R${item.price}</p>
