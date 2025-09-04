@@ -29,9 +29,17 @@ export const HeaderContainer = styled.div`
     display: flex;
     align-items: center;
   }
+  h1 {
+    font-size: 18px;
+    font-weight: 900;
+  }
   h1:last-child {
     justify-self: end;
     text-align: right;
+  }
+  .cart {
+    color: ${Colors.red};
+    cursor: pointer;
   }
 `;
 export const HeaderImg = styled.div<HeaderImgProps>`
@@ -135,7 +143,7 @@ export const CardDescription = styled.p`
   font-weight: 400;
   margin-bottom: 8px;
   height: 88px;
-  line-height: 1.6;
+  line-height: 22px;
 `;
 export const CardButton = styled.div`
   width: 100%;
@@ -148,6 +156,7 @@ export const CardButton = styled.div`
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
+  margin-bottom: 8px;
 
   a {
     text-decoration: none;
@@ -189,7 +198,7 @@ export const ModalContent = styled.div`
   }
 `;
 export const BotaoModal = styled.button`
-  margin-top: 12px;
+  margin-top: 16px;
   margin-bottom: 60px;
   margin-right: 12px;
   padding: 8px 16px;
@@ -198,6 +207,8 @@ export const BotaoModal = styled.button`
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
 `;
 export const ModalClose = styled.button`
   position: absolute;

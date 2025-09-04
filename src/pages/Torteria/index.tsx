@@ -40,9 +40,9 @@ export const Torteria = () => {
   const count = useSelector((state: RootState) => state.cart.items.length);
 
   const truncateWords = (text: string, wordLimit: number) => {
-    const words = text.split("");
+    const words = text.split(" ");
     return words.length > wordLimit
-      ? words.slice(0, wordLimit).join("") + "..."
+      ? words.slice(0, wordLimit).join(" ") + "..."
       : text;
   };
 
@@ -90,7 +90,9 @@ export const Torteria = () => {
             <Link to={"/"}>
               <img src={logo} alt="Logo" />
             </Link>
-            <h1>{count} Produto(s) no carrinho</h1>
+            <a href="#" onClick={handleCart} className="cart">
+              <h1>{count} Produto(s) no carrinho</h1>
+            </a>
           </HeaderContainer>
         </Container>
       </Header>
@@ -113,7 +115,7 @@ export const Torteria = () => {
               <CardImage src={item.foto} alt={item.nome} />
               <CardTitle>{item.nome}</CardTitle>
               <CardDescription>
-                {truncateWords(item.descricao, 150)}
+                {truncateWords(item.descricao, 25)}
               </CardDescription>
               <CardButton onClick={() => handleModal(item)}>
                 Adicionar ao carrinho
@@ -130,7 +132,8 @@ export const Torteria = () => {
             <div className="modal-content">
               <CardTitle>{selectedItem.nome}</CardTitle>
               <CardDescription>
-                {truncateWords(selectedItem.descricao, 20)}
+                {selectedItem.descricao}
+                <br />
                 <br />
                 Serve: {selectedItem.porcao}
               </CardDescription>
@@ -138,7 +141,6 @@ export const Torteria = () => {
                 <BotaoModal onClick={handleAddToCart}>
                   Adicionar ao carrinho - R$ {selectedItem.preco.toFixed(2)}
                 </BotaoModal>
-                <BotaoModal onClick={handleCart}>Ver carrinho</BotaoModal>
               </div>
               <ModalClose onClick={() => handleModal()}>X</ModalClose>
             </div>
