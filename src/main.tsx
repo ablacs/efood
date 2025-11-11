@@ -10,9 +10,13 @@ import { InProgress } from "./components/error/index.tsx";
 import { Checkout } from "./pages/confirm/index.tsx";
 
 const router = createBrowserRouter([
+  //{
+  //path: "/",
+  //element: <App />,
+  //},
   {
     path: "/",
-    element: <App />,
+    element: <Checkout />,
   },
   {
     path: "/restaurants/:id",
