@@ -63,6 +63,7 @@ export const Restaurants = () => {
             </TagContainer>
           </Cards>
         ))}
+        <h1>teste</h1>
       </CardsList>
     </>
   );

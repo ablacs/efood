@@ -73,7 +73,7 @@ export const Torteria = () => {
           image: selectedItem.foto,
         })
       );
-      setModal(false); // Close modal after adding to cart
+      setModal(false);
     }
   };
 
