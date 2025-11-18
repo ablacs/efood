@@ -6,27 +6,11 @@ import { addItem } from "../../features/cart/cartslice";
 
 import { Footer } from "../../components/Footer";
 import { Container } from "../../styles";
-import {
-  BotaoModal,
-  CardButton,
-  CardDescription,
-  CardImage,
-  Cards,
-  CardTitle,
-  Header,
-  HeaderContainer,
-  HeaderImg,
-  HeaderTextContainer,
-  Italian,
-  LaDolce,
-  ModalClose,
-  ModalContent,
-  ModalOverlay,
-  Products,
-} from "./styles";
+import * as S from "./styles";
 import logo from "../../assets/logo.png";
 import { CartModal } from "../../modals/CarModal/CartModal";
 import type { Restaurant, MenuItem } from "../../components/Restaurants";
+import { formatPrice } from "../../utils/format";
 
 export const Torteria = () => {
   const { id } = useParams();
@@ -47,7 +31,7 @@ export const Torteria = () => {
   };
 
   useEffect(() => {
-    fetch("https://ebac-fake-api.vercel.app/api/efood/restaurantes")
+    fetch("https://api-ebac.vercel.app/api/efood/restaurantes")
       .then((res) => res.json())
       .then((data: Restaurant[]) => {
         const foundRestaurant = data.find((r) => r.id === Number(id));
@@ -83,69 +67,69 @@ export const Torteria = () => {
 
   return (
     <>
-      <Header>
+      <S.Header>
         <Container>
-          <HeaderContainer>
+          <S.HeaderContainer>
             <h1>Restaurantes</h1>
             <Link to={"/"}>
               <img src={logo} alt="Logo" />
             </Link>
-            <a href="#" onClick={handleCart} className="cart">
+            <button onClick={handleCart} className="cart">
               <h1>{count} Produto(s) no carrinho</h1>
-            </a>
-          </HeaderContainer>
+            </button>
+          </S.HeaderContainer>
         </Container>
-      </Header>
+      </S.Header>
 
-      <HeaderImg backgroundImage={restaurant.capa}>
-        <HeaderTextContainer>
-          <Italian>
+      <S.HeaderImg backgroundImage={restaurant.capa}>
+        <S.HeaderTextContainer>
+          <S.Italian>
             <h3>{restaurant.tipo}</h3>
-          </Italian>
-          <LaDolce>
+          </S.Italian>
+          <S.LaDolce>
             <h1>{restaurant.titulo}</h1>
-          </LaDolce>
-        </HeaderTextContainer>
-      </HeaderImg>
+          </S.LaDolce>
+        </S.HeaderTextContainer>
+      </S.HeaderImg>
 
       <Container>
-        <Products>
+        <S.Products>
           {restaurant.cardapio.map((item) => (
-            <Cards key={item.id}>
-              <CardImage src={item.foto} alt={item.nome} />
-              <CardTitle>{item.nome}</CardTitle>
-              <CardDescription>
+            <S.Cards key={item.id}>
+              <S.CardImage src={item.foto} alt={item.nome} />
+              <S.CardTitle>{item.nome}</S.CardTitle>
+              <S.CardDescription>
                 {truncateWords(item.descricao, 25)}
-              </CardDescription>
-              <CardButton onClick={() => handleModal(item)}>
+              </S.CardDescription>
+              <S.CardButton onClick={() => handleModal(item)}>
                 Adicionar ao carrinho
-              </CardButton>
-            </Cards>
+              </S.CardButton>
+            </S.Cards>
           ))}
-        </Products>
+        </S.Products>
       </Container>
 
       {modal && selectedItem && (
-        <ModalOverlay onClick={() => handleModal()}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
+        <S.ModalOverlay onClick={() => handleModal()}>
+          <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <img src={selectedItem.foto} alt={selectedItem.nome} />
             <div className="modal-content">
-              <CardTitle>{selectedItem.nome}</CardTitle>
-              <CardDescription>
+              <S.CardTitle>{selectedItem.nome}</S.CardTitle>
+              <S.CardDescription>
                 {selectedItem.descricao}
                 <br />
                 <br />
                 Serve: {selectedItem.porcao}
-              </CardDescription>
+              </S.CardDescription>
               <div className="modal-button">
-                <BotaoModal onClick={handleAddToCart}>
-                  Adicionar ao carrinho - R$ {selectedItem.preco.toFixed(2)}
-                </BotaoModal>
+                <S.BotaoModal onClick={handleAddToCart}>
+                  Adicionar ao carrinho - {formatPrice(selectedItem.preco)}
+                </S.BotaoModal>
               </div>
-              <ModalClose onClick={() => handleModal()}>X</ModalClose>
+              <S.ModalClose onClick={() => handleModal()}>X</S.ModalClose>
             </div>
-          </ModalContent>
-        </ModalOverlay>
+          </S.ModalContent>
+        </S.ModalOverlay>
       )}
 
       <CartModal isOpen={cartModal} onClose={handleCart} />

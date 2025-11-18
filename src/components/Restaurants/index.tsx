@@ -1,14 +1,4 @@
-import {
-  Button,
-  CardDescription,
-  CardImage,
-  Cards,
-  CardsList,
-  CardTitle,
-  Nota,
-  Tag,
-  TagContainer,
-} from "./styles";
+import * as S from "./styles";
 import estrela from "../../assets/estrela.svg";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -35,36 +25,35 @@ export type Restaurant = {
 export const Restaurants = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   useEffect(() => {
-    fetch("https://ebac-fake-api.vercel.app/api/efood/restaurantes")
+    fetch("https://api-ebac.vercel.app/api/efood/restaurantes")
       .then((res) => res.json())
       .then((res) => setRestaurants(res));
   }, []);
   return (
     <>
-      <CardsList>
+      <S.CardsList>
         {restaurants.map((restaurant) => (
-          <Cards key={restaurant.id}>
-            <CardImage src={restaurant.capa} alt="" />
-            <CardTitle>
+          <S.Cards key={restaurant.id}>
+            <S.CardImage src={restaurant.capa} alt="Restaurant picture" />
+            <S.CardTitle>
               <h1>{restaurant.titulo} </h1>
-              <Nota>
+              <S.Nota>
                 <h2>{restaurant.avaliacao}</h2>
-                <img src={estrela} alt="" />
-              </Nota>
-            </CardTitle>
-            <CardDescription>{restaurant.descricao}</CardDescription>
+                <img src={estrela} alt="rating" />
+              </S.Nota>
+            </S.CardTitle>
+            <S.CardDescription>{restaurant.descricao}</S.CardDescription>
             <Link to={`/restaurants/${restaurant.id}`}>
-              <Button>Saiba mais</Button>
+              <S.Button>Saiba mais</S.Button>
             </Link>
-            <TagContainer>
-              {restaurant.destacado && <Tag>Destaque</Tag>}
+            <S.TagContainer>
+              {restaurant.destacado && <S.Tag>Destaque</S.Tag>}
 
-              <Tag>{restaurant.tipo} </Tag>
-            </TagContainer>
-          </Cards>
+              <S.Tag>{restaurant.tipo} </S.Tag>
+            </S.TagContainer>
+          </S.Cards>
         ))}
-        <h1>teste</h1>
-      </CardsList>
+      </S.CardsList>
     </>
   );
 };

@@ -40,6 +40,10 @@ export const HeaderContainer = styled.div`
   .cart {
     color: ${Colors.red};
     cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
   }
 `;
 export const HeaderImg = styled.div<HeaderImgProps>`

@@ -6,11 +6,11 @@ import twitter from "../../assets/twitter.svg";
 export const Footer = () => (
   <>
     <Container>
-      <LogoImage src={logo} alt="" />
+      <LogoImage src={logo} alt="Logo" />
       <Socials>
-        <img src={instagram} alt="" />
-        <img src={facebook} alt="" />
-        <img src={twitter} alt="" />
+        <img src={instagram} alt="Instagram logo" />
+        <img src={facebook} alt="Facebook logo" />
+        <img src={twitter} alt="Twitter logo" />
       </Socials>
       <FooterDescription>
         A efood é uma plataforma para divulgação de estabelecimentos, a

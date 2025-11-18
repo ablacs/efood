@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-//import App from "./App.tsx";
+import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Torteria } from "./pages/Home/index.tsx";
 import { GlobalStyle } from "./styles.ts";
@@ -10,13 +10,9 @@ import { InProgress } from "./components/error/index.tsx";
 import { Checkout } from "./pages/confirm/index.tsx";
 
 const router = createBrowserRouter([
-  //{
-  //path: "/",
-  //element: <App />,
-  //},
   {
     path: "/",
-    element: <Checkout />,
+    element: <App />,
   },
   {
     path: "/restaurants/:id",

@@ -1,26 +1,18 @@
 import { CardButton, ModalOverlay } from "../../pages/Home/styles";
-import {
-  CardModal,
-  CartDescription,
-  CEP,
-  CEPDescription,
-  CloseIcon,
-  ModalButtons,
-  ModalForm,
-  SideModal,
-  Value,
-} from "./styles";
+import * as S from "./styles";
 import trash from "../../assets/lixeira-de-reciclagem 1.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { removeItem } from "../../features/cart/cartslice";
+import { clearCart, removeItem } from "../../features/cart/cartslice";
 import type { RootState } from "../../app/store";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { formatPrice } from "../../utils/format";
 
 type CartModalProps = {
   isOpen: boolean;
   onClose: () => void;
 };
+
 type OrderInfo = {
   orderId: string;
   status?: string;
@@ -30,13 +22,30 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
   const [step, setStep] = useState<"cart" | "address" | "payment" | "order">(
     "cart"
   );
+
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
+
   const HandleRemove = (id: number) => {
     dispatch(removeItem(id));
   };
+
   const totalPrice = cartItems.reduce((total, item) => total + item.price, 0);
+
   const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
+
+  const [receiver, setReceiver] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [zip, setZip] = useState("");
+  const [number, setNumber] = useState("");
+  const [complement, setComplement] = useState("");
+
+  const [cardName, setCardName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
 
   const handleCheckout = async () => {
     const orderData = {
@@ -45,43 +54,29 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
         price: item.price,
       })),
       delivery: {
-        receiver: (document.getElementById("receiver") as HTMLInputElement)
-          ?.value,
+        receiver,
         address: {
-          description: (document.getElementById("address") as HTMLInputElement)
-            ?.value,
-          city: (document.getElementById("city") as HTMLInputElement)?.value,
-          zipCode: (document.getElementById("zip") as HTMLInputElement)?.value,
-          number: parseInt(
-            (document.getElementById("number") as HTMLInputElement)?.value
-          ),
-          complement: (
-            document.getElementById("complement") as HTMLInputElement
-          )?.value,
+          description: address,
+          city,
+          zipCode: zip,
+          number: parseInt(number),
+          complement,
         },
       },
       payment: {
         card: {
-          name: (document.getElementById("cardName") as HTMLInputElement)
-            ?.value,
-          number: (document.getElementById("cardNumber") as HTMLInputElement)
-            ?.value,
-          code: parseInt(
-            (document.getElementById("cvv") as HTMLInputElement)?.value
-          ),
+          name: cardName,
+          number: cardNumber,
+          code: parseInt(cvv),
           expires: {
-            month: parseInt(
-              (document.getElementById("month") as HTMLInputElement)?.value
-            ),
-            year: parseInt(
-              (document.getElementById("year") as HTMLInputElement)?.value
-            ),
+            month: parseInt(month),
+            year: parseInt(year),
           },
         },
       },
     };
 
-    console.log("🟡 Enviando para API:", orderData);
+    console.log("Enviando para API:", orderData);
 
     try {
       const response = await fetch(
@@ -99,11 +94,12 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
       }
 
       const data = await response.json();
-      console.log("✅ Resposta da API:", data);
+      console.log("Resposta da API:", data);
+
       setOrderInfo(data);
       setStep("order");
     } catch (error) {
-      console.error("🚨 Erro ao enviar pedido:", error);
+      console.error("Erro ao enviar pedido:", error);
       alert(
         "Ocorreu um erro ao finalizar o pedido. Verifique os dados e tente novamente."
       );
@@ -114,125 +110,187 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
 
   return (
     <ModalOverlay onClick={onClose}>
-      <SideModal onClick={(e) => e.stopPropagation()}>
+      <S.SideModal onClick={(e) => e.stopPropagation()}>
         {step === "cart" && (
           <>
-            {cartItems.map((item) => (
-              <CardModal key={item.id}>
-                <img src={item.image} alt={item.name} />
-                <CartDescription>
-                  <h1>{item.name}</h1>
-                  <p>R${item.price}</p>
-                  <CloseIcon onClick={() => HandleRemove(item.id)}>
-                    <img src={trash} alt="Remover" />
-                  </CloseIcon>
-                </CartDescription>
-              </CardModal>
-            ))}
-            <Value>
-              <h1>Valor total:</h1>
-              <p>R${totalPrice}</p>
-            </Value>
-            <CardButton onClick={() => setStep("address")}>
-              Continuar com a entrega
-            </CardButton>
+            {cartItems.length > 0 ? (
+              <>
+                {cartItems.map((item) => (
+                  <S.CardModal key={item.id}>
+                    <img src={item.image} alt={item.name} />
+                    <S.CartDescription>
+                      <h1>{item.name}</h1>
+                      <p>{formatPrice(item.price)}</p>
+                      <S.CloseIcon onClick={() => HandleRemove(item.id)}>
+                        <img src={trash} alt="Remover" />
+                      </S.CloseIcon>
+                    </S.CartDescription>
+                  </S.CardModal>
+                ))}
+
+                <S.Value>
+                  <h1>Valor total:</h1>
+                  <p>{formatPrice(totalPrice)} </p>
+                </S.Value>
+
+                <CardButton onClick={() => setStep("address")}>
+                  Continuar com a entrega
+                </CardButton>
+              </>
+            ) : (
+              <S.Value>
+                <h1>Seu carrinho está vazio</h1>
+              </S.Value>
+            )}
           </>
         )}
 
         {step === "address" && (
-          <ModalForm>
+          <S.ModalForm>
             <h1>Entrega</h1>
+
             <h2>Quem vai receber</h2>
-            <input id="receiver" type="text" />
+            <input
+              type="text"
+              value={receiver}
+              onChange={(e) => setReceiver(e.target.value)}
+            />
+
             <h2>Endereço</h2>
-            <input id="address" type="text" />
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+
             <h2>Cidade</h2>
-            <input id="city" type="text" />
-            <CEP>
-              <CEPDescription>
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            />
+
+            <S.CEP>
+              <S.CEPDescription>
                 <h2>CEP</h2>
-                <input id="zip" type="text" />
-              </CEPDescription>
-              <CEPDescription>
+                <input
+                  type="text"
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value)}
+                />
+              </S.CEPDescription>
+
+              <S.CEPDescription>
                 <h2>Número</h2>
-                <input id="number" type="number" />
-              </CEPDescription>
-            </CEP>
+                <input
+                  type="number"
+                  value={number}
+                  onChange={(e) => setNumber(e.target.value)}
+                />
+              </S.CEPDescription>
+            </S.CEP>
+
             <h2>Complemento (opcional)</h2>
-            <input id="complement" type="text" />
-            <ModalButtons>
+            <input
+              type="text"
+              value={complement}
+              onChange={(e) => setComplement(e.target.value)}
+            />
+
+            <S.ModalButtons>
               <CardButton onClick={() => setStep("payment")}>
                 Continuar para pagamento
               </CardButton>
+
               <CardButton onClick={() => setStep("cart")}>
                 Voltar para o carrinho
               </CardButton>
-            </ModalButtons>
-          </ModalForm>
+            </S.ModalButtons>
+          </S.ModalForm>
         )}
 
         {step === "payment" && (
-          <ModalForm>
-            <h1>Pagamento - Valor total: R${totalPrice}</h1>
+          <S.ModalForm>
+            <h1>Pagamento - Valor total: {formatPrice(totalPrice)}</h1>
+
             <h2>Nome no cartão</h2>
-            <input id="cardName" type="text" />
-            <CEP>
-              <CEPDescription>
+            <input
+              type="text"
+              value={cardName}
+              onChange={(e) => setCardName(e.target.value)}
+            />
+
+            <S.CEP>
+              <S.CEPDescription>
                 <h2>Número do cartão</h2>
-                <input id="cardNumber" type="text" />
-              </CEPDescription>
-              <CEPDescription>
+                <input
+                  type="text"
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(e.target.value)}
+                />
+              </S.CEPDescription>
+
+              <S.CEPDescription>
                 <h2>CVV</h2>
-                <input id="cvv" type="number" />
-              </CEPDescription>
-            </CEP>
-            <CEP>
-              <CEPDescription>
+                <input
+                  type="number"
+                  value={cvv}
+                  onChange={(e) => setCvv(e.target.value)}
+                />
+              </S.CEPDescription>
+            </S.CEP>
+
+            <S.CEP>
+              <S.CEPDescription>
                 <h2>Mês de vencimento</h2>
-                <input id="month" type="number" />
-              </CEPDescription>
-              <CEPDescription>
+                <input
+                  type="number"
+                  value={month}
+                  onChange={(e) => setMonth(e.target.value)}
+                />
+              </S.CEPDescription>
+
+              <S.CEPDescription>
                 <h2>Ano de vencimento</h2>
-                <input id="year" type="number" />
-              </CEPDescription>
-            </CEP>
-            <ModalButtons>
+                <input
+                  type="number"
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                />
+              </S.CEPDescription>
+            </S.CEP>
+
+            <S.ModalButtons>
               <CardButton onClick={handleCheckout}>Finalizar compra</CardButton>
+
               <CardButton onClick={() => setStep("address")}>
                 Voltar para a edição de endereço
               </CardButton>
-            </ModalButtons>
-          </ModalForm>
+            </S.ModalButtons>
+          </S.ModalForm>
         )}
 
         {step === "order" && orderInfo && (
-          <ModalForm>
+          <S.ModalForm>
             <h1>Pedido realizado - {orderInfo.orderId}</h1>
             <p>
-              Estamos felizes em informar que seu pedido já está em processo de
-              preparação e, em breve, será entregue no endereço fornecido.
+              Seu pedido está em preparação e será entregue em breve no endereço
+              informado.
             </p>
-            <p>
-              Gostaríamos de ressaltar que nossos entregadores não estão
-              autorizados a realizar cobranças extras.
-            </p>
-            <p>
-              Lembre-se da importância de higienizar as mãos após o recebimento
-              do pedido, garantindo assim sua segurança e bem-estar durante a
-              refeição.
-            </p>
-            <p>
-              Esperamos que desfrute de uma deliciosa e agradável experiência
-              gastronômica. Bom apetite!
-            </p>
-            <ModalButtons>
+            <p>Os entregadores não estão autorizados a cobrar taxas extras.</p>
+            <p>Lembre-se de higienizar as mãos ao receber o pedido.</p>
+            <p>Bom apetite!</p>
+
+            <S.ModalButtons>
               <Link to="/">
-                <CardButton>Concluir</CardButton>
+                <CardButton onClick={() => dispatch(clearCart())}>
+                  Concluir
+                </CardButton>
               </Link>
-            </ModalButtons>
-          </ModalForm>
+            </S.ModalButtons>
+          </S.ModalForm>
         )}
-      </SideModal>
+      </S.SideModal>
     </ModalOverlay>
   );
 };
