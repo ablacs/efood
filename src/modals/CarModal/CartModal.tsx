@@ -1,12 +1,22 @@
-import { CardButton, ModalOverlay } from "../../pages/Home/styles";
-import * as S from "./styles";
-import trash from "../../assets/lixeira-de-reciclagem 1.svg";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCart, removeItem } from "../../features/cart/cartslice";
 import type { RootState } from "../../app/store";
-import { useState } from "react";
+
 import { Link } from "react-router-dom";
 import { formatPrice } from "../../utils/format";
+import trash from "../../assets/lixeira-de-reciclagem 1.svg";
+
+import { CardButton, ModalOverlay } from "../../pages/Home/styles";
+import * as S from "./styles";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { addressSchema } from "../../validation/addressSchema";
+import { paymentSchema } from "../../validation/paymentSchema";
+import type { AddressFormData } from "../../validation/addressSchema";
+import type { PaymentFormData } from "../../validation/paymentSchema";
 
 type CartModalProps = {
   isOpen: boolean;
@@ -22,61 +32,102 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
   const [step, setStep] = useState<"cart" | "address" | "payment" | "order">(
     "cart"
   );
+  const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
+  const [formErrors, setFormErrors] = useState<string[]>([]);
 
-  const cartItems = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
+  const cartItems = useSelector((state: RootState) => state.cart.items);
 
-  const HandleRemove = (id: number) => {
+  const handleRemove = (id: number) => {
     dispatch(removeItem(id));
   };
 
   const totalPrice = cartItems.reduce((total, item) => total + item.price, 0);
+  const addressForm = useForm<AddressFormData>({
+    resolver: zodResolver(addressSchema),
+    defaultValues: {
+      receiver: "",
+      address: "",
+      city: "",
+      zip: "",
+      number: "",
+      complement: "",
+    },
+    mode: "onTouched",
+  });
+  const paymentForm = useForm<PaymentFormData>({
+    resolver: zodResolver(paymentSchema),
+    defaultValues: {
+      cardName: "",
+      cardNumber: "",
+      cvv: "",
+      month: "",
+      year: "",
+    },
+    mode: "onTouched",
+  });
 
-  const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
+  const onlyDigits = (s?: string) => (s ? s.replace(/\D/g, "") : "");
+  const validateAddressAndNext = async () => {
+    setFormErrors([]);
+    const valid = await addressForm.trigger();
 
-  const [receiver, setReceiver] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [zip, setZip] = useState("");
-  const [number, setNumber] = useState("");
-  const [complement, setComplement] = useState("");
+    if (valid) {
+      setStep("payment");
+    } else {
+      const errs = Object.values(addressForm.formState.errors).map(
+        (e) => e?.message || "Campo inválido"
+      );
+      setFormErrors(errs as string[]);
+    }
+  };
+  const validatePaymentAndCheckout = async () => {
+    setFormErrors([]);
+    const valid = await paymentForm.trigger();
 
-  const [cardName, setCardName] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState("");
-
+    if (valid) {
+      handleCheckout();
+    } else {
+      const errs = Object.values(paymentForm.formState.errors).map(
+        (e) => e?.message || "Campo inválido"
+      );
+      setFormErrors(errs as string[]);
+    }
+  };
   const handleCheckout = async () => {
+    const addr = addressForm.getValues();
+    const pay = paymentForm.getValues();
+
     const orderData = {
       products: cartItems.map((item) => ({
         id: item.id,
         price: item.price,
       })),
       delivery: {
-        receiver,
+        receiver: addr.receiver,
         address: {
-          description: address,
-          city,
-          zipCode: zip,
-          number: parseInt(number),
-          complement,
+          description: addr.address,
+          city: addr.city,
+          zipCode: onlyDigits(addr.zip),
+          number: parseInt(addr.number),
+          complement: addr.complement ?? "",
         },
       },
       payment: {
         card: {
-          name: cardName,
-          number: cardNumber,
-          code: parseInt(cvv),
+          name: pay.cardName,
+          number: onlyDigits(pay.cardNumber),
+          code: parseInt(onlyDigits(pay.cvv)),
           expires: {
-            month: parseInt(month),
-            year: parseInt(year),
+            month: parseInt(pay.month),
+            year:
+              pay.year.length === 2
+                ? parseInt(`20${pay.year}`)
+                : parseInt(pay.year),
           },
         },
       },
     };
-
-    console.log("Enviando para API:", orderData);
 
     try {
       const response = await fetch(
@@ -90,19 +141,14 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Erro ${response.status}: ${errorText}`);
+        throw new Error(errorText);
       }
 
       const data = await response.json();
-      console.log("Resposta da API:", data);
-
       setOrderInfo(data);
       setStep("order");
-    } catch (error) {
-      console.error("Erro ao enviar pedido:", error);
-      alert(
-        "Ocorreu um erro ao finalizar o pedido. Verifique os dados e tente novamente."
-      );
+    } catch {
+      alert("Erro ao finalizar pedido");
     }
   };
 
@@ -118,10 +164,12 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
                 {cartItems.map((item) => (
                   <S.CardModal key={item.id}>
                     <img src={item.image} alt={item.name} />
+
                     <S.CartDescription>
                       <h1>{item.name}</h1>
                       <p>{formatPrice(item.price)}</p>
-                      <S.CloseIcon onClick={() => HandleRemove(item.id)}>
+
+                      <S.CloseIcon onClick={() => handleRemove(item.id)}>
                         <img src={trash} alt="Remover" />
                       </S.CloseIcon>
                     </S.CartDescription>
@@ -130,11 +178,11 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
 
                 <S.Value>
                   <h1>Valor total:</h1>
-                  <p>{formatPrice(totalPrice)} </p>
+                  <p>{formatPrice(totalPrice)}</p>
                 </S.Value>
 
                 <CardButton onClick={() => setStep("address")}>
-                  Continuar com a entrega
+                  Continuar com entrega
                 </CardButton>
               </>
             ) : (
@@ -144,132 +192,123 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
             )}
           </>
         )}
-
         {step === "address" && (
           <S.ModalForm>
             <h1>Entrega</h1>
 
+            {formErrors.length > 0 && (
+              <div className="error-message">
+                <p>Preencha os campos corretamente</p>
+                {formErrors.map((err, i) => (
+                  <p key={i}>{err}</p>
+                ))}
+              </div>
+            )}
+
             <h2>Quem vai receber</h2>
             <input
-              type="text"
-              value={receiver}
-              onChange={(e) => setReceiver(e.target.value)}
+              {...addressForm.register("receiver")}
+              placeholder="Nome do destinatário"
             />
 
             <h2>Endereço</h2>
             <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              {...addressForm.register("address")}
+              placeholder="Rua, Av, etc."
             />
 
             <h2>Cidade</h2>
-            <input
-              type="text"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-            />
+            <input {...addressForm.register("city")} placeholder="Cidade" />
 
             <S.CEP>
               <S.CEPDescription>
                 <h2>CEP</h2>
                 <input
-                  type="text"
-                  value={zip}
-                  onChange={(e) => setZip(e.target.value)}
+                  {...addressForm.register("zip")}
+                  placeholder="00000-000"
                 />
               </S.CEPDescription>
 
               <S.CEPDescription>
                 <h2>Número</h2>
-                <input
-                  type="number"
-                  value={number}
-                  onChange={(e) => setNumber(e.target.value)}
-                />
+                <input {...addressForm.register("number")} placeholder="123" />
               </S.CEPDescription>
             </S.CEP>
 
-            <h2>Complemento (opcional)</h2>
+            <h2>Complemento</h2>
             <input
-              type="text"
-              value={complement}
-              onChange={(e) => setComplement(e.target.value)}
+              {...addressForm.register("complement")}
+              placeholder="Apto, bloco..."
             />
 
             <S.ModalButtons>
-              <CardButton onClick={() => setStep("payment")}>
+              <CardButton onClick={validateAddressAndNext}>
                 Continuar para pagamento
               </CardButton>
 
               <CardButton onClick={() => setStep("cart")}>
-                Voltar para o carrinho
+                Voltar ao carrinho
               </CardButton>
             </S.ModalButtons>
           </S.ModalForm>
         )}
-
         {step === "payment" && (
           <S.ModalForm>
-            <h1>Pagamento - Valor total: {formatPrice(totalPrice)}</h1>
+            <h1>Pagamento — Total: {formatPrice(totalPrice)}</h1>
+
+            {formErrors.length > 0 && (
+              <div className="error-message">
+                <p>Preencha os campos corretamente</p>
+                {formErrors.map((err, i) => (
+                  <p key={i}>{err}</p>
+                ))}
+              </div>
+            )}
 
             <h2>Nome no cartão</h2>
             <input
-              type="text"
-              value={cardName}
-              onChange={(e) => setCardName(e.target.value)}
+              {...paymentForm.register("cardName")}
+              placeholder="Nome como no cartão"
             />
 
             <S.CEP>
               <S.CEPDescription>
                 <h2>Número do cartão</h2>
                 <input
-                  type="text"
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
+                  {...paymentForm.register("cardNumber")}
+                  placeholder="1111222233334444"
                 />
               </S.CEPDescription>
 
               <S.CEPDescription>
                 <h2>CVV</h2>
-                <input
-                  type="number"
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value)}
-                />
+                <input {...paymentForm.register("cvv")} placeholder="123" />
               </S.CEPDescription>
             </S.CEP>
 
             <S.CEP>
               <S.CEPDescription>
-                <h2>Mês de vencimento</h2>
-                <input
-                  type="number"
-                  value={month}
-                  onChange={(e) => setMonth(e.target.value)}
-                />
+                <h2>Mês</h2>
+                <input {...paymentForm.register("month")} placeholder="MM" />
               </S.CEPDescription>
 
               <S.CEPDescription>
-                <h2>Ano de vencimento</h2>
-                <input
-                  type="number"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                />
+                <h2>Ano</h2>
+                <input {...paymentForm.register("year")} placeholder="YYYY" />
               </S.CEPDescription>
             </S.CEP>
 
             <S.ModalButtons>
-              <CardButton onClick={handleCheckout}>Finalizar compra</CardButton>
+              <CardButton onClick={validatePaymentAndCheckout}>
+                Finalizar compra
+              </CardButton>
 
               <CardButton onClick={() => setStep("address")}>
-                Voltar para a edição de endereço
+                Voltar ao endereço
               </CardButton>
             </S.ModalButtons>
           </S.ModalForm>
         )}
-
         {step === "order" && orderInfo && (
           <S.ModalForm>
             <h1>Pedido realizado - {orderInfo.orderId}</h1>
@@ -283,7 +322,11 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
 
             <S.ModalButtons>
               <Link to="/">
-                <CardButton onClick={() => dispatch(clearCart())}>
+                <CardButton
+                  onClick={() => {
+                    dispatch(clearCart());
+                  }}
+                >
                   Concluir
                 </CardButton>
               </Link>

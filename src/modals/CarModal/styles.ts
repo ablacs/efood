@@ -100,6 +100,16 @@ export const ModalForm = styled.form`
   p{
     margin-bottom: 16px;}
   }
+    .error-message {
+    color: ${Colors.red};
+    background-color: ${Colors.beige};
+    padding: 8px;
+    margin-bottom: 16px;
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    }
 `;
 export const ModalButtons = styled.div`
   margin-top: 24px;
