@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCart, removeItem } from "../../features/cart/cartslice";
 import type { RootState } from "../../app/store";
+import { IMaskInput } from "react-imask";
 
 import { Link } from "react-router-dom";
 import { formatPrice } from "../../utils/format";
@@ -10,7 +11,7 @@ import trash from "../../assets/lixeira-de-reciclagem 1.svg";
 import { CardButton, ModalOverlay } from "../../pages/Home/styles";
 import * as S from "./styles";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { addressSchema } from "../../validation/addressSchema";
@@ -223,9 +224,16 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
             <S.CEP>
               <S.CEPDescription>
                 <h2>CEP</h2>
-                <input
-                  {...addressForm.register("zip")}
-                  placeholder="00000-000"
+                <Controller
+                  name="zip"
+                  control={addressForm.control}
+                  render={({ field }) => (
+                    <IMaskInput
+                      {...field}
+                      mask="00000-000"
+                      placeholder="00000-000"
+                    />
+                  )}
                 />
               </S.CEPDescription>
 
@@ -265,7 +273,7 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
               </div>
             )}
 
-            <h2>Nome no cartão</h2>
+            <h1>Nome no cartão</h1>
             <input
               {...paymentForm.register("cardName")}
               placeholder="Nome como no cartão"
@@ -274,27 +282,52 @@ export const CartModal = ({ isOpen, onClose }: CartModalProps) => {
             <S.CEP>
               <S.CEPDescription>
                 <h2>Número do cartão</h2>
-                <input
-                  {...paymentForm.register("cardNumber")}
-                  placeholder="1111222233334444"
+                <Controller
+                  name="cardNumber"
+                  control={paymentForm.control}
+                  render={({ field }) => (
+                    <IMaskInput
+                      {...field}
+                      mask="0000 0000 0000 0000"
+                      placeholder="1111 2222 3333 4444"
+                    />
+                  )}
                 />
               </S.CEPDescription>
 
               <S.CEPDescription>
                 <h2>CVV</h2>
-                <input {...paymentForm.register("cvv")} placeholder="123" />
+                <Controller
+                  name="cvv"
+                  control={paymentForm.control}
+                  render={({ field }) => (
+                    <IMaskInput {...field} mask="000" placeholder="123" />
+                  )}
+                />
               </S.CEPDescription>
             </S.CEP>
 
             <S.CEP>
               <S.CEPDescription>
                 <h2>Mês</h2>
-                <input {...paymentForm.register("month")} placeholder="MM" />
+                <Controller
+                  name="month"
+                  control={paymentForm.control}
+                  render={({ field }) => (
+                    <IMaskInput {...field} mask="00" placeholder="MM" />
+                  )}
+                />
               </S.CEPDescription>
 
               <S.CEPDescription>
                 <h2>Ano</h2>
-                <input {...paymentForm.register("year")} placeholder="YYYY" />
+                <Controller
+                  name="year"
+                  control={paymentForm.control}
+                  render={({ field }) => (
+                    <IMaskInput {...field} mask="0000" placeholder="YYYY" />
+                  )}
+                />
               </S.CEPDescription>
             </S.CEP>
 
